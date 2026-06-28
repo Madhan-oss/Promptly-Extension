@@ -14,19 +14,19 @@ $INCLUDE = @(
   "browser-polyfill.js",
   "chat-exporter.js",
   "content-script.js",
-  "icons\icon16.png",
-  "icons\icon48.png",
-  "icons\icon128.png",
-  "popup\popup.html",
-  "popup\popup.js",
-  "popup\popup.css"
+  "icons/icon16.png",
+  "icons/icon48.png",
+  "icons/icon128.png",
+  "popup/popup.html",
+  "popup/popup.js",
+  "popup/popup.css"
 )
 
 Write-Host "Building Promptly for Firefox v${VERSION} ..." -ForegroundColor Magenta
 
 if (Test-Path $BUILD_DIR) { Remove-Item -Recurse -Force $BUILD_DIR }
-New-Item -ItemType Directory -Force -Path "$BUILD_DIR\icons" | Out-Null
-New-Item -ItemType Directory -Force -Path "$BUILD_DIR\popup"  | Out-Null
+New-Item -ItemType Directory -Force -Path "$BUILD_DIR/icons" | Out-Null
+New-Item -ItemType Directory -Force -Path "$BUILD_DIR/popup"  | Out-Null
 
 foreach ($file in $INCLUDE) {
   $src = Join-Path $SOURCE_DIR $file
@@ -53,7 +53,29 @@ if (-not (Test-Path $distDir)) { New-Item -ItemType Directory -Force -Path $dist
 
 $zipPath = Join-Path $distDir $ZIP_NAME
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
-Compress-Archive -Path "$BUILD_DIR\*" -DestinationPath $zipPath -CompressionLevel Optimal
+
+# Use ZipFile with forward slashes in entry names (required by Firefox AMO)
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+$zipStream = [System.IO.File]::Open($zipPath, [System.IO.FileMode]::Create)
+$archive   = New-Object System.IO.Compression.ZipArchive($zipStream, [System.IO.Compression.ZipArchiveMode]::Create)
+
+$buildDirFull = (Resolve-Path $BUILD_DIR).Path
+Get-ChildItem -Path $buildDirFull -Recurse -File | ForEach-Object {
+  $fullPath  = $_.FullName
+  # Force forward slashes for the entry name (Firefox AMO requirement)
+  $entryName = $fullPath.Substring($buildDirFull.Length + 1).Replace('\', '/')
+  $entry       = $archive.CreateEntry($entryName, [System.IO.Compression.CompressionLevel]::Optimal)
+  $entryStream = $entry.Open()
+  $fileStream  = [System.IO.File]::OpenRead($fullPath)
+  $fileStream.CopyTo($entryStream)
+  $fileStream.Close()
+  $entryStream.Close()
+}
+
+$archive.Dispose()
+$zipStream.Close()
 
 $sizeKB = [math]::Round((Get-Item $zipPath).Length / 1KB, 1)
 Write-Host ""
