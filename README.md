@@ -1,3 +1,4 @@
+<img width="1276" height="799" alt="Screenshot 2026-06-28 000052" src="https://github.com/user-attachments/assets/6692ace6-131c-4855-83a9-0f9d74e4e8fd" />
 # ⚡ Promptly — Chrome Extension
 
 > **Turn one-line prompts into structured, high-quality prompts for any AI chat.  
