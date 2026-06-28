@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Promptly",
+  "version": "1.2.0",
+  "description": "Promptly — turn one-line prompts into structured, high-quality prompts for any AI chat. Export full chats when limits hit. No login required.",
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "host_permissions": ["<all_urls>", "https://api.groq.com/*", "https://*.vercel.app/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "optimize-prompt": {
+      "suggested_key": {
+        "default": "Alt+Shift+P",
+        "mac": "Alt+Shift+P"
+      },
+      "description": "Optimize the current prompt with Promptly ⚡"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["browser-polyfill.js", "chat-exporter.js", "content-script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "48": "icons/icon48.png"
+    },
+    "default_title": "Promptly — Optimize Your Prompts"
+  },
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["popup/*", "icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

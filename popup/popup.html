@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promptly</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-icon" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           width="18" height="18" fill="white">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+    </div>
+    <span class="header-wordmark">Promptly</span>
+    <span class="header-badge">v1.2</span>
+  </header>
+
+  <!-- ── First-run onboarding banner (hidden by default) ──────── -->
+  <div id="onboarding-banner" class="onboarding-banner" style="display:none;" role="status">
+    <div class="onboarding-icon">👋</div>
+    <div class="onboarding-text">
+      <strong>Welcome to Promptly!</strong><br>
+      Paste your free <a href="https://console.groq.com/keys" id="onboarding-key-link" target="_blank" rel="noopener">Groq API key</a> below to get started. Takes 30 seconds.
+    </div>
+  </div>
+
+  <!-- ── Tabs ───────────────────────────────────────────────── -->
+  <nav class="tabs" role="tablist" aria-label="Popup navigation">
+    <button class="tab-btn active" id="tab-settings"
+            role="tab" aria-selected="true" aria-controls="panel-settings"
+            data-tab="settings">
+      ⚙️ Settings
+    </button>
+    <button class="tab-btn" id="tab-projects"
+            role="tab" aria-selected="false" aria-controls="panel-projects"
+            data-tab="projects">
+      📁 Projects
+    </button>
+    <button class="tab-btn" id="tab-history"
+            role="tab" aria-selected="false" aria-controls="panel-history"
+            data-tab="history">
+      📜 History
+    </button>
+  </nav>
+
+  <!-- ── Settings Panel ──────────────────────────────────────── -->
+  <section id="panel-settings" class="tab-content active"
+           role="tabpanel" aria-labelledby="tab-settings">
+
+    <div class="settings-scroll">
+
+      <div class="field">
+        <label for="api-key-input">Groq API Key</label>
+        <div class="input-wrap">
+          <input
+            type="password"
+            id="api-key-input"
+            placeholder="gsk_••••••••••••••••••••••••••••••••"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="eye-btn" id="toggle-key-visibility"
+                  aria-label="Toggle API key visibility" title="Show / hide key">
+            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 width="16" height="16" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <p class="note">
+          Optional. Leave blank to use our default cloud proxy server. Save your own key to enjoy unlimited usage and faster response speeds.
+        </p>
+      </div>
+
+      <div class="settings-row">
+        <button class="btn-primary" id="save-key-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               width="13" height="13" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save Key
+        </button>
+        <button class="btn-secondary" id="test-key-btn" title="Send a test request to verify your key">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               width="13" height="13" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 11 12 14 22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          Test Key
+        </button>
+      </div>
+
+      <div id="settings-status" class="status-msg" role="alert" aria-live="polite"></div>
+
+      <div class="divider"></div>
+
+      <!-- ── Tone Selector ─────────────────────────── -->
+      <div class="field">
+        <label for="tone-select">Optimization Tone</label>
+        <div class="select-wrap" style="margin-bottom:0;">
+          <select id="tone-select" aria-label="Select optimization tone">
+            <option value="default">⚡ Default — balanced &amp; structured</option>
+            <option value="technical">🔧 Technical — precise, edge-cases, types</option>
+            <option value="creative">🎨 Creative — expressive &amp; imaginative</option>
+            <option value="concise">✂️ Concise — half the words, all the meaning</option>
+          </select>
+          <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+            <path d="M8 11L2 5h12z"/>
+          </svg>
+        </div>
+        <p class="note" style="margin-top:6px;">Applied to every ⚡ optimization. Also use <strong>Alt+Shift+P</strong> keyboard shortcut.</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <p class="note">
+        Don't have a key yet?
+        <a href="https://console.groq.com/keys" id="get-key-link" target="_blank" rel="noopener noreferrer">
+          Get a free Groq API key →
+        </a>
+      </p>
+
+      <div class="info-box">
+        <div class="info-row">
+          <span class="info-dot"></span>
+          <span>Groq model: <strong>llama-3.3-70b-versatile</strong></span>
+        </div>
+        <div class="info-row">
+          <span class="info-dot"></span>
+          <span>Input cap: 2,000 chars per call</span>
+        </div>
+        <div class="info-row">
+          <span class="info-dot"></span>
+          <span>API key is never stored on any server</span>
+        </div>
+        <div class="info-row">
+          <span class="info-dot"></span>
+          <span>Keyboard shortcut: <strong>Alt+Shift+P</strong></span>
+        </div>
+      </div>
+
+    </div><!-- /.settings-scroll -->
+
+  </section>
+
+  <!-- ── Projects Panel ──────────────────────────────────────── -->
+  <section id="panel-projects" class="tab-content"
+           role="tabpanel" aria-labelledby="tab-projects">
+
+    <div class="select-wrap field">
+      <label for="active-project-select">Active project context</label>
+      <select id="active-project-select" aria-label="Select active project">
+        <option value="">— None —</option>
+      </select>
+      <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg"
+           viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+        <path d="M8 11L2 5h12z"/>
+      </svg>
+    </div>
+
+    <div class="section-header">
+      <span class="section-title">Saved Projects</span>
+      <button class="btn-secondary" id="add-project-btn" aria-expanded="false"
+              aria-controls="add-project-form">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             width="12" height="12" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5"  y1="12" x2="19" y2="12"/>
+        </svg>
+        Add
+      </button>
+    </div>
+
+    <div id="projects-list" aria-label="Project list">
+      <!-- Rendered by JS -->
+    </div>
+
+    <form id="add-project-form" aria-label="Project form" novalidate>
+      <div class="field">
+        <label for="proj-name">Project name</label>
+        <input type="text" id="proj-name" placeholder="e.g. My SaaS App" maxlength="60" required />
+      </div>
+      <div class="field">
+        <label for="proj-stack">Stack / Domain</label>
+        <input type="text" id="proj-stack" placeholder="e.g. Next.js, Postgres, Tailwind" maxlength="120" />
+      </div>
+      <div class="field">
+        <label for="proj-tone">Tone / Style</label>
+        <input type="text" id="proj-tone" placeholder="e.g. Concise, technical, no fluff" maxlength="120" />
+      </div>
+      <div class="field">
+        <label for="proj-constraints">Constraints</label>
+        <input type="text" id="proj-constraints" placeholder="e.g. No external libraries" maxlength="200" />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" id="save-project-btn">Save Project</button>
+        <button type="button" class="btn-secondary" id="cancel-project-btn">Cancel</button>
+      </div>
+    </form>
+
+  </section>
+
+  <!-- ── History Panel ───────────────────────────────────────── -->
+  <section id="panel-history" class="tab-content"
+           role="tabpanel" aria-labelledby="tab-history">
+
+    <div class="section-header">
+      <span class="section-title">Saved Chat Exports</span>
+      <button class="btn-danger-sm" id="clear-history-btn" title="Clear all exports">
+        Clear All
+      </button>
+    </div>
+
+    <!-- Inline confirmation row — replaces native confirm() dialog -->
+    <div id="clear-confirm-row" class="clear-confirm-row" style="display:none;" role="alert">
+      <span class="clear-confirm-text">Delete all exports?</span>
+      <button class="btn-danger-sm" id="clear-confirm-yes">Yes, delete</button>
+      <button class="btn-secondary btn-sm" id="clear-confirm-no">Cancel</button>
+    </div>
+
+    <p class="note" style="margin-bottom:12px;">
+      Chats exported via the 💾 button on any AI platform appear here.
+      Last <strong>5</strong> exports are kept.
+    </p>
+
+    <div id="history-list" aria-label="Chat history list">
+      <!-- Rendered by JS -->
+    </div>
+
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

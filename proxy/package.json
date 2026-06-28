@@ -1,0 +1,13 @@
+{
+  "name": "promptly-backend-proxy",
+  "version": "1.2.0",
+  "description": "Secure proxy server for Groq API inside Promptly extension",
+  "main": "api/optimize.js",
+  "scripts": {
+    "start": "node api/optimize.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {}
+}

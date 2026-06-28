@@ -1,0 +1,8 @@
+# Build directories
+dist/chrome/
+dist/firefox/
+dist/opera/
+
+# OS files
+.DS_Store
+Thumbs.db
