@@ -10,7 +10,7 @@ const GROQ_API_URL    = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL      = "llama-3.3-70b-versatile";
 const MAX_INPUT_CHARS = 2000;
 const DEFAULT_GROQ_API_KEY = "YOUR_DEFAULT_GROQ_API_KEY_HERE";
-const PROXY_API_URL   = "https://YOUR_PROXY_DEPLOYMENT_URL.vercel.app/api/optimize";
+const PROXY_API_URL   = "https://promptly-umber.vercel.app/api/optimize";
 
 // ── Tone presets ───────────────────────────────────────────────
 const TONE_INSTRUCTIONS = {

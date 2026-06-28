@@ -4,7 +4,7 @@
 'use strict';
 
 const DEFAULT_GROQ_API_KEY = "YOUR_DEFAULT_GROQ_API_KEY_HERE";
-const PROXY_API_URL   = "https://YOUR_PROXY_DEPLOYMENT_URL.vercel.app/api/optimize";
+const PROXY_API_URL   = "https://promptly-umber.vercel.app/api/optimize";
 
 // ════════════════════════════════════════════════════════════
 //  TAB SWITCHING
