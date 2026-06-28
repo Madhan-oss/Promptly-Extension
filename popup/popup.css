@@ -557,3 +557,32 @@ select:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(91,8
   border-color: rgba(240,107,107,0.2);
 }
 .btn-hist-del:hover { background: rgba(240,107,107,0.1); border-color: var(--error); }
+
+/* ── Developer Footer ──────────────────────────────────────── */
+.dev-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.dev-footer strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.dev-footer a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.dev-footer a:hover {
+  color: var(--accent);
+}
