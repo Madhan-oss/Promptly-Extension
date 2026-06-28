@@ -563,7 +563,7 @@ select:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(91,8
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 5px 12px;
   background: var(--bg);
   border-top: 1px solid var(--border);
   font-size: 10px;
@@ -572,17 +572,25 @@ select:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(91,8
   flex-shrink: 0;
 }
 
-.dev-footer strong {
+.dev-credit strong {
   color: var(--accent);
   font-weight: 600;
 }
 
-.dev-footer a {
+.dev-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-links a {
+  display: flex;
+  align-items: center;
   color: var(--muted);
   text-decoration: none;
   transition: color 0.2s;
 }
 
-.dev-footer a:hover {
+.dev-links a:hover {
   color: var(--accent);
 }
