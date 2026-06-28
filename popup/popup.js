@@ -141,10 +141,23 @@ chrome.storage.local.get(['groqApiKey', 'grokApiKey'], async ({ groqApiKey, grok
 
 saveKeyBtn.addEventListener('click', () => {
   const key = apiKeyInput.value.trim();
+  
   if (!key) {
-    showStatus('settings-status', '⚠️  Please enter your API key first.', 'error');
+    // Revert to default: remove keys from storage
+    chrome.storage.local.remove(['groqApiKey', 'grokApiKey'], () => {
+      const hasDefault = (DEFAULT_GROQ_API_KEY && DEFAULT_GROQ_API_KEY !== "YOUR_DEFAULT_GROQ_API_KEY_HERE") ||
+                         (PROXY_API_URL && !PROXY_API_URL.includes("YOUR_PROXY_DEPLOYMENT_URL"));
+      
+      apiKeyInput.placeholder = hasDefault ? "Using default cloud optimizer" : "gsk_••••••••••••••••••••••••••••••••";
+      
+      // Update onboarding banner visibility
+      checkFirstRun();
+      
+      showStatus('settings-status', '✅  Custom key cleared. Reverted to default optimizer.', 'success');
+    });
     return;
   }
+  
   chrome.storage.local.set({ groqApiKey: key }, () => {
     // Hide onboarding banner once a key is saved
     const banner = document.getElementById('onboarding-banner');
