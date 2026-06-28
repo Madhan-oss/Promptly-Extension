@@ -61,161 +61,31 @@ function formatDate(iso) {
   } catch (_) { return iso; }
 }
 
-// ════════════════════════════════════════════════════════════
-//  ONBOARDING BANNER
-// ════════════════════════════════════════════════════════════
+// ── Test Connection button ───────────────────────────────────
+const testConnectionBtn = document.getElementById('test-connection-btn');
 
-function checkFirstRun() {
-  chrome.storage.local.get(['groqApiKey', 'grokApiKey'], ({ groqApiKey, grokApiKey }) => {
-    const activeKey = groqApiKey || grokApiKey;
-    const hasDefault = (DEFAULT_GROQ_API_KEY && DEFAULT_GROQ_API_KEY !== "YOUR_DEFAULT_GROQ_API_KEY_HERE") ||
-                       (PROXY_API_URL && !PROXY_API_URL.includes("YOUR_PROXY_DEPLOYMENT_URL"));
-    if (!activeKey && !hasDefault) {
-      const banner = document.getElementById('onboarding-banner');
-      if (banner) banner.style.display = 'flex';
-    }
-  });
-}
-
-document.getElementById('onboarding-key-link')?.addEventListener('click', e => {
-  e.preventDefault();
-  chrome.tabs.create({ url: 'https://console.groq.com/keys' });
-});
-
-checkFirstRun();
-
-// ════════════════════════════════════════════════════════════
-//  SETTINGS TAB
-// ════════════════════════════════════════════════════════════
-
-const apiKeyInput  = document.getElementById('api-key-input');
-const toggleKeyBtn = document.getElementById('toggle-key-visibility');
-const saveKeyBtn   = document.getElementById('save-key-btn');
-const testKeyBtn   = document.getElementById('test-key-btn');
-
-const EYE_OPEN = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-       width="16" height="16" fill="none" stroke="currentColor"
-       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
-    <circle cx="12" cy="12" r="3"/>
-  </svg>`;
-
-const EYE_CLOSED = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-       width="16" height="16" fill="none" stroke="currentColor"
-       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8
-             a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0
-             1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07
-             a3 3 0 1 1-4.24-4.24"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
-  </svg>`;
-
-toggleKeyBtn.addEventListener('click', () => {
-  const isHidden = apiKeyInput.type === 'password';
-  apiKeyInput.type = isHidden ? 'text' : 'password';
-  toggleKeyBtn.innerHTML = isHidden ? EYE_CLOSED : EYE_OPEN;
-  toggleKeyBtn.setAttribute('aria-label', isHidden ? 'Hide API key' : 'Show API key');
-});
-
-// Load existing key on open or perform migration
-chrome.storage.local.get(['groqApiKey', 'grokApiKey'], async ({ groqApiKey, grokApiKey }) => {
-  let activeKey = groqApiKey;
-  
-  if (!activeKey && grokApiKey) {
-    activeKey = grokApiKey;
-    await new Promise(resolve => chrome.storage.local.set({ groqApiKey: activeKey }, resolve));
-  }
-
-  if (activeKey) {
-    apiKeyInput.value = activeKey;
-  } else {
-    const hasDefault = (DEFAULT_GROQ_API_KEY && DEFAULT_GROQ_API_KEY !== "YOUR_DEFAULT_GROQ_API_KEY_HERE") ||
-                       (PROXY_API_URL && !PROXY_API_URL.includes("YOUR_PROXY_DEPLOYMENT_URL"));
-    if (hasDefault) {
-      apiKeyInput.placeholder = "Using default cloud optimizer";
-    }
-  }
-});
-
-saveKeyBtn.addEventListener('click', () => {
-  const key = apiKeyInput.value.trim();
-  
-  if (!key) {
-    // Revert to default: remove keys from storage
-    chrome.storage.local.remove(['groqApiKey', 'grokApiKey'], () => {
-      const hasDefault = (DEFAULT_GROQ_API_KEY && DEFAULT_GROQ_API_KEY !== "YOUR_DEFAULT_GROQ_API_KEY_HERE") ||
-                         (PROXY_API_URL && !PROXY_API_URL.includes("YOUR_PROXY_DEPLOYMENT_URL"));
-      
-      apiKeyInput.placeholder = hasDefault ? "Using default cloud optimizer" : "gsk_••••••••••••••••••••••••••••••••";
-      
-      // Update onboarding banner visibility
-      checkFirstRun();
-      
-      showStatus('settings-status', '✅  Custom key cleared. Reverted to default optimizer.', 'success');
-    });
-    return;
-  }
-  
-  chrome.storage.local.set({ groqApiKey: key }, () => {
-    // Hide onboarding banner once a key is saved
-    const banner = document.getElementById('onboarding-banner');
-    if (banner) banner.style.display = 'none';
-    showStatus('settings-status', '✅  API key saved successfully!', 'success');
-  });
-});
-
-// ── Test Key button ──────────────────────────────────────────
-testKeyBtn.addEventListener('click', () => {
-  let key = apiKeyInput.value.trim();
-  const hasDefault = DEFAULT_GROQ_API_KEY && DEFAULT_GROQ_API_KEY !== "YOUR_DEFAULT_GROQ_API_KEY_HERE";
-  const hasProxy   = PROXY_API_URL && !PROXY_API_URL.includes("YOUR_PROXY_DEPLOYMENT_URL");
-
-  if (!key) {
-    if (hasDefault) {
-      key = DEFAULT_GROQ_API_KEY;
-    } else if (hasProxy) {
-      key = ""; // Will trigger proxy verification in background script
-    }
-  }
-
-  if (key === "" && !hasProxy) {
-    showStatus('settings-status', '⚠️  Enter a key to test.', 'error');
-    return;
-  }
-
-  testKeyBtn.disabled = true;
-  testKeyBtn.textContent = '⏳ Testing…';
+testConnectionBtn?.addEventListener('click', () => {
+  testConnectionBtn.disabled = true;
+  testConnectionBtn.textContent = '⏳ Testing Connection…';
   showStatus('settings-status', '', '');
 
-  chrome.runtime.sendMessage({ type: 'TEST_API_KEY', apiKey: key }, (response) => {
-    testKeyBtn.disabled = false;
-    testKeyBtn.innerHTML = `
+  chrome.runtime.sendMessage({ type: 'TEST_API_KEY', apiKey: "" }, (response) => {
+    testConnectionBtn.disabled = false;
+    testConnectionBtn.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
            width="13" height="13" fill="none" stroke="currentColor"
            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 11 12 14 22 4"/>
-        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
-      Test Key`;
+      Test Connection`;
 
     if (response?.success) {
-      const isCustom = apiKeyInput.value.trim() !== "";
-      const successMsg = isCustom 
-        ? '✅  Custom API key is valid! Ready to optimize.'
-        : '✅  Default cloud proxy is online and ready!';
-      showStatus('settings-status', successMsg, 'success', 4000);
+      showStatus('settings-status', '✅  Default cloud proxy is online and ready!', 'success', 4000);
     } else {
       const msg = response?.error || 'Unknown error';
       showStatus('settings-status', `❌  ${msg.slice(0, 80)}`, 'error', 6000);
     }
   });
-});
-
-document.getElementById('get-key-link').addEventListener('click', e => {
-  e.preventDefault();
-  chrome.tabs.create({ url: 'https://console.groq.com/keys' });
 });
 
 // ── Tone selector ────────────────────────────────────────────

@@ -20,14 +20,7 @@
     <span class="header-badge">v1.2</span>
   </header>
 
-  <!-- ── First-run onboarding banner (hidden by default) ──────── -->
-  <div id="onboarding-banner" class="onboarding-banner" style="display:none;" role="status">
-    <div class="onboarding-icon">👋</div>
-    <div class="onboarding-text">
-      <strong>Welcome to Promptly!</strong><br>
-      Paste your free <a href="https://console.groq.com/keys" id="onboarding-key-link" target="_blank" rel="noopener">Groq API key</a> below to get started. Takes 30 seconds.
-    </div>
-  </div>
+
 
   <!-- ── Tabs ───────────────────────────────────────────────── -->
   <nav class="tabs" role="tablist" aria-label="Popup navigation">
@@ -54,57 +47,6 @@
 
     <div class="settings-scroll">
 
-      <div class="field">
-        <label for="api-key-input">Groq API Key</label>
-        <div class="input-wrap">
-          <input
-            type="password"
-            id="api-key-input"
-            placeholder="gsk_••••••••••••••••••••••••••••••••"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button class="eye-btn" id="toggle-key-visibility"
-                  aria-label="Toggle API key visibility" title="Show / hide key">
-            <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                 width="16" height="16" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-          </button>
-        </div>
-        <p class="note">
-          Optional. Leave blank to use our default cloud proxy server. Save your own key to enjoy unlimited usage and faster response speeds.
-        </p>
-      </div>
-
-      <div class="settings-row">
-        <button class="btn-primary" id="save-key-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               width="13" height="13" fill="none" stroke="currentColor"
-               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/>
-            <polyline points="7 3 7 8 15 8"/>
-          </svg>
-          Save Key
-        </button>
-        <button class="btn-secondary" id="test-key-btn" title="Send a test request to verify your key">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               width="13" height="13" fill="none" stroke="currentColor"
-               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 11 12 14 22 4"/>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-          </svg>
-          Test Key
-        </button>
-      </div>
-
-      <div id="settings-status" class="status-msg" role="alert" aria-live="polite"></div>
-
-      <div class="divider"></div>
-
       <!-- ── Tone Selector ─────────────────────────── -->
       <div class="field">
         <label for="tone-select">Optimization Tone</label>
@@ -123,14 +65,20 @@
         <p class="note" style="margin-top:6px;">Applied to every ⚡ optimization. Also use <strong>Alt+Shift+P</strong> keyboard shortcut.</p>
       </div>
 
-      <div class="divider"></div>
+      <div class="settings-row" style="margin-top: 14px;">
+        <button class="btn-secondary" id="test-connection-btn" title="Verify connection to cloud proxy server">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+               width="13" height="13" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Test Connection
+        </button>
+      </div>
 
-      <p class="note">
-        Don't have a key yet?
-        <a href="https://console.groq.com/keys" id="get-key-link" target="_blank" rel="noopener noreferrer">
-          Get a free Groq API key →
-        </a>
-      </p>
+      <div id="settings-status" class="status-msg" role="alert" aria-live="polite"></div>
+
+      <div class="divider"></div>
 
       <div class="info-box">
         <div class="info-row">
@@ -141,10 +89,7 @@
           <span class="info-dot"></span>
           <span>Input cap: 2,000 chars per call</span>
         </div>
-        <div class="info-row">
-          <span class="info-dot"></span>
-          <span>API key is never stored on any server</span>
-        </div>
+
         <div class="info-row">
           <span class="info-dot"></span>
           <span>Keyboard shortcut: <strong>Alt+Shift+P</strong></span>
