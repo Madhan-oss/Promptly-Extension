@@ -88,6 +88,80 @@ testConnectionBtn?.addEventListener('click', () => {
   });
 });
 
+// ── Usage Metrics ─────────────────────────────────────────────
+function loadMetrics() {
+  chrome.storage.local.get(['promptly_calls', 'promptly_total_ms', 'promptly_month'], (data) => {
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+
+    // Reset if new month
+    if (data.promptly_month !== monthKey) {
+      chrome.storage.local.set({ promptly_calls: 0, promptly_total_ms: 0, promptly_month: monthKey });
+      return;
+    }
+
+    const calls = data.promptly_calls || 0;
+    const totalMs = data.promptly_total_ms || 0;
+    const avgMs = calls > 0 ? Math.round(totalMs / calls) : null;
+    const pct = Math.min((calls / 2000) * 100, 100);
+
+    const callsEl = document.getElementById('metric-calls');
+    const barEl   = document.getElementById('metric-bar');
+    const timeEl  = document.getElementById('metric-time');
+
+    if (callsEl) callsEl.textContent = calls.toLocaleString();
+    if (barEl)   setTimeout(() => barEl.style.width = pct + '%', 80);
+    if (timeEl)  timeEl.textContent = avgMs ? `${avgMs}ms` : '—';
+  });
+}
+loadMetrics();
+
+// ── Reset Metrics ─────────────────────────────────────────────
+document.getElementById('reset-metrics-btn')?.addEventListener('click', () => {
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+  chrome.storage.local.set({ promptly_calls: 0, promptly_total_ms: 0, promptly_month: monthKey }, () => {
+    loadMetrics();
+    showStatus('settings-status', '✅  Metrics reset successfully.', 'success', 3000);
+  });
+});
+
+// ── Quick Shortcut Cards ──────────────────────────────────────
+const SHORTCUT_TONES = {
+  'shortcut-creative':   'creative',
+  'shortcut-precision':  'technical',
+  'shortcut-structural': 'default',
+};
+
+Object.entries(SHORTCUT_TONES).forEach(([id, tone]) => {
+  document.getElementById(id)?.addEventListener('click', () => {
+    // Get the active tab and send optimize message with forced tone
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs[0]) return;
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'TRIGGER_OPTIMIZE', forceTone: tone });
+      window.close();
+    });
+  });
+});
+
+// ── Auto-creative checkbox ────────────────────────────────────
+const autoCreativeCb = document.getElementById('auto-creative-cb');
+chrome.storage.local.get('autoCreative', ({ autoCreative }) => {
+  if (autoCreativeCb) autoCreativeCb.checked = !!autoCreative;
+});
+autoCreativeCb?.addEventListener('change', () => {
+  chrome.storage.local.set({ autoCreative: autoCreativeCb.checked });
+});
+
+// ── Advanced Settings toggle ──────────────────────────────────
+const advancedBtn   = document.getElementById('advanced-toggle-btn');
+const advancedPanel = document.getElementById('advanced-panel');
+advancedBtn?.addEventListener('click', () => {
+  const isOpen = advancedPanel.classList.toggle('open');
+  advancedBtn.textContent = isOpen ? '[-] Advanced Settings' : '[+] Advanced Settings';
+  advancedBtn.setAttribute('aria-expanded', isOpen);
+});
+
 // ── Tone selector ────────────────────────────────────────────
 const toneSelect = document.getElementById('tone-select');
 
@@ -98,6 +172,7 @@ chrome.storage.local.get('selectedTone', ({ selectedTone }) => {
 toneSelect.addEventListener('change', () => {
   chrome.storage.local.set({ selectedTone: toneSelect.value });
 });
+
 
 // ════════════════════════════════════════════════════════════
 //  PROJECTS TAB

@@ -65,33 +65,87 @@
         <p class="note" style="margin-top:6px;">Applied to every ⚡ optimization. Also use <strong>Alt+Shift+P</strong> keyboard shortcut.</p>
       </div>
 
-      <div class="settings-row" style="margin-top: 14px;">
-        <button class="btn-secondary" id="test-connection-btn" title="Verify connection to cloud proxy server">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-               width="13" height="13" fill="none" stroke="currentColor"
-               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-          Test Connection
-        </button>
-      </div>
-
       <div id="settings-status" class="status-msg" role="alert" aria-live="polite"></div>
 
       <div class="divider"></div>
 
-      <div class="info-box">
-        <div class="info-row">
-          <span class="info-dot"></span>
-          <span>⚡ Powered by <strong>Promptly</strong> — Fast, Smart, Reliable.</span>
+      <!-- ── Usage Metrics ─────────────────────────── -->
+      <div class="section-label">Usage Metrics</div>
+      <div class="metrics-card">
+        <div class="metrics-row">
+          <span class="metrics-title">Current Month API Usage</span>
+          <span class="metrics-counts">
+            Calls: <strong id="metric-calls">0</strong> / 2,000
+          </span>
         </div>
-        <div class="info-row">
-          <span class="info-dot"></span>
-          <span>🔒 Your data never leaves your device</span>
+        <div class="metrics-bar-wrap">
+          <div class="metrics-bar" id="metric-bar"></div>
         </div>
-        <div class="info-row">
-          <span class="info-dot"></span>
-          <span>⌨️ Shortcut: <strong>Alt+Shift+P</strong> to optimize instantly</span>
+        <div class="metrics-row" style="margin-top:6px;">
+          <span class="metrics-title">Average Response Time</span>
+          <strong class="metrics-time" id="metric-time">—</strong>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ── Quick Shortcuts ───────────────────────── -->
+      <div class="section-label">Quick Optimization Shortcuts</div>
+      <div class="shortcut-grid">
+        <button class="shortcut-card" id="shortcut-creative" title="Creative Spark">
+          <span class="shortcut-icon">✏️✨</span>
+          <strong>Creative Spark</strong>
+          <span class="shortcut-key">Alt+Shift+C</span>
+          <span class="shortcut-desc">(Shortens and punchifies)</span>
+        </button>
+        <button class="shortcut-card" id="shortcut-precision" title="Precision Polish">
+          <span class="shortcut-icon">📋🔬</span>
+          <strong>Precision Polish</strong>
+          <span class="shortcut-key">Alt+Shift+D</span>
+          <span class="shortcut-desc">(Fixes errors and logic)</span>
+        </button>
+        <button class="shortcut-card" id="shortcut-structural" title="Structural Guide">
+          <span class="shortcut-icon">📄📏</span>
+          <strong>Structural Guide</strong>
+          <span class="shortcut-key">Alt+Shift+S</span>
+          <span class="shortcut-desc">(Adds detailed structure)</span>
+        </button>
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="auto-creative-cb" />
+        <span>Auto-apply creative spark on empty input</span>
+      </label>
+
+      <div class="divider"></div>
+
+      <!-- ── Advanced Settings ─────────────────────── -->
+      <button class="advanced-toggle" id="advanced-toggle-btn" aria-expanded="false">
+        [+] Advanced Settings
+      </button>
+      <div class="advanced-panel" id="advanced-panel">
+        <div class="settings-row" style="margin-top:10px;">
+          <button class="btn-secondary" id="test-connection-btn" title="Verify connection to cloud proxy server">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 width="13" height="13" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Test Connection
+          </button>
+          <button class="btn-secondary" id="reset-metrics-btn" title="Reset usage counters">
+            Reset Metrics
+          </button>
+        </div>
+        <div class="info-box" style="margin-top:10px;">
+          <div class="info-row">
+            <span class="info-dot"></span>
+            <span>⚡ Powered by <strong>Promptly</strong> — Fast, Smart, Reliable.</span>
+          </div>
+          <div class="info-row">
+            <span class="info-dot"></span>
+            <span>🔒 Your data never leaves your device</span>
+          </div>
         </div>
       </div>
 
@@ -188,7 +242,7 @@
 
   <!-- ── Footer ───────────────────────────────────────────────── -->
   <footer class="dev-footer">
-    <span class="dev-credit">Built by <strong>Madhan</strong></span>
+    <span class="dev-credit">Built by <strong>Madhan Kumar B</strong></span>
     <div class="dev-links">
       <a href="https://github.com/Madhan-oss" target="_blank" rel="noopener noreferrer" title="GitHub">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="13" height="13" fill="currentColor">

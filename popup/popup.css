@@ -558,6 +558,134 @@ select:focus { border-color: var(--brand-light); box-shadow: 0 0 0 3px rgba(91,8
 }
 .btn-hist-del:hover { background: rgba(240,107,107,0.1); border-color: var(--error); }
 
+/* ── Section Label ─────────────────────────────────────────── */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* ── Metrics Card ──────────────────────────────────────────── */
+.metrics-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 2px;
+}
+.metrics-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+.metrics-title { color: var(--text); }
+.metrics-counts { color: var(--muted); font-size: 10.5px; }
+.metrics-counts strong { color: var(--accent); }
+.metrics-bar-wrap {
+  height: 5px;
+  background: var(--surface);
+  border-radius: 99px;
+  margin: 8px 0 4px;
+  overflow: hidden;
+}
+.metrics-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--brand-light), var(--accent));
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+.metrics-time {
+  color: var(--accent);
+  font-size: 13px;
+}
+
+/* ── Shortcut Grid ─────────────────────────────────────────── */
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.shortcut-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.shortcut-card:hover {
+  border-color: var(--accent);
+  background: rgba(38,224,181,0.07);
+  transform: translateY(-1px);
+}
+.shortcut-card:active { transform: translateY(0); }
+.shortcut-icon { font-size: 16px; line-height: 1; }
+.shortcut-card strong { font-size: 9.5px; font-weight: 600; color: var(--text); }
+.shortcut-key {
+  font-size: 8.5px;
+  color: var(--accent);
+  font-weight: 600;
+  background: rgba(38,224,181,0.1);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+.shortcut-desc { font-size: 8px; color: var(--muted); }
+
+/* ── Checkbox Row ──────────────────────────────────────────── */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Advanced Toggle ───────────────────────────────────────── */
+.advanced-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  padding: 2px 0;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+.advanced-toggle:hover { color: var(--accent); }
+.advanced-panel {
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.advanced-panel.open { display: block; }
+
 /* ── Developer Footer ──────────────────────────────────────── */
 .dev-footer {
   display: flex;
