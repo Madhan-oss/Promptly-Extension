@@ -131,7 +131,7 @@ function loadMetrics() {
     const calls = data.promptly_calls || 0;
     const totalMs = data.promptly_total_ms || 0;
     const avgMs = calls > 0 ? Math.round(totalMs / calls) : null;
-    const pct = Math.min((calls / 2000) * 100, 100);
+    const pct = Math.min((calls / 200) * 100, 100);
 
     const callsEl = document.getElementById('metric-calls');
     const barEl   = document.getElementById('metric-bar');
