@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promptly — AI Prompt Optimizer Extension</title>
+  <meta name="description" content="Promptly turns one-line prompts into structured, high-quality AI prompts instantly. Free browser extension for Chrome, Firefox, Edge & Opera. No login required." />
+  <meta property="og:title" content="Promptly — AI Prompt Optimizer" />
+  <meta property="og:description" content="Transform weak prompts into powerful AI instructions in one click. Free extension for all browsers." />
+  <meta name="theme-color" content="#13142B" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0D0E1F;
+      --surface:     #13142B;
+      --surface2:    #1C1E3A;
+      --surface3:    #252848;
+      --border:      rgba(46,50,96,0.7);
+      --accent:      #26E0B5;
+      --accent-dim:  rgba(38,224,181,0.12);
+      --accent-glow: rgba(38,224,181,0.35);
+      --brand:       #342EAD;
+      --brand-light: #5B54D4;
+      --text:        #EAEAF8;
+      --muted:       #8C8FB3;
+      --radius:      14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise & Grid Background ───────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(38,224,181,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(38,224,181,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Glow Orbs ─────────────────────────────────────────────── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width:500px; height:500px; background:rgba(52,46,173,0.25); top:-100px; left:-100px; }
+    .orb-2 { width:400px; height:400px; background:rgba(38,224,181,0.12); bottom:100px; right:-80px; animation-delay:-6s; }
+    .orb-3 { width:300px; height:300px; background:rgba(91,84,212,0.2); top:50%; left:50%; transform:translate(-50%,-50%); animation-delay:-3s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.05); }
+    }
+
+    /* ── Typography ────────────────────────────────────────────── */
+    h1, h2, h3 { letter-spacing: -0.5px; line-height: 1.15; }
+    .gradient-text {
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Navigation ────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 68px;
+      background: rgba(13,14,31,0.75);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(52,46,173,0.5);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      padding: 9px 22px;
+      background: var(--accent);
+      color: #0D0E1F !important;
+      border-radius: 8px;
+      font-weight: 700 !important;
+      font-size: 14px !important;
+      transition: transform 0.15s, box-shadow 0.2s !important;
+    }
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px var(--accent-glow);
+      color: #0D0E1F !important;
+    }
+
+    /* ── Section Layout ────────────────────────────────────────── */
+    section { position: relative; z-index: 1; }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 5%;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(38,224,181,0.25);
+      border-radius: 99px;
+      padding: 4px 12px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 68px;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      padding: 80px 0;
+    }
+
+    .hero-left h1 {
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900;
+      margin-bottom: 20px;
+      line-height: 1.1;
+    }
+
+    .hero-left p {
+      font-size: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 460px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 5px 12px;
+    }
+
+    .hero-download-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      color: #fff;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(52,46,173,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(52,46,173,0.55); }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .btn-outline:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      transform: translateY(-2px);
+    }
+
+    /* ── Extension Mockup ──────────────────────────────────────── */
+    .mockup-wrap {
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .mockup-glow {
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(ellipse at center, rgba(52,46,173,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .ext-mockup {
+      width: 320px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
+    }
+
+    .mock-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #1a1b3d, var(--surface));
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mock-icon {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .mock-title { font-weight: 800; font-size: 15px; }
+    .mock-badge {
+      margin-left: auto;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(38,224,181,0.3);
+      border-radius: 99px;
+      padding: 2px 7px;
+    }
+
+    .mock-toggle-pill {
+      width: 32px; height: 17px;
+      background: var(--accent);
+      border-radius: 99px;
+      position: relative;
+      margin-left: 6px;
+    }
+    .mock-toggle-pill::after {
+      content: '';
+      position: absolute;
+      top: 2px; right: 2px;
+      width: 13px; height: 13px;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .mock-tabs {
+      display: flex;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mock-tab {
+      flex: 1;
+      padding: 9px 0;
+      font-size: 11px;
+      text-align: center;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+    }
+
+    .mock-tab.active {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .mock-body { padding: 14px; }
+
+    .mock-label {
+      font-size: 8.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .mock-select {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .mock-metrics {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+
+    .mock-metric-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .mock-metric-row strong { color: var(--accent); }
+
+    .mock-bar-bg {
+      height: 4px;
+      background: var(--surface);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .mock-bar-fill {
+      height: 100%;
+      width: 68%;
+      background: linear-gradient(90deg, var(--brand-light), var(--accent));
+      border-radius: 99px;
+      animation: bar-grow 2s ease-out forwards;
+    }
+
+    @keyframes bar-grow {
+      from { width: 0%; }
+      to   { width: 68%; }
+    }
+
+    .mock-shortcut-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    .mock-sc {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 4px;
+      text-align: center;
+      font-size: 8.5px;
+    }
+    .mock-sc-icon { font-size: 14px; display: block; margin-bottom: 3px; }
+    .mock-sc strong { display: block; color: var(--text); font-size: 7.5px; }
+    .mock-sc span   { color: var(--accent); font-size: 7px; }
+
+    .mock-footer {
+      padding: 6px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      font-size: 9px;
+      color: var(--muted);
+    }
+    .mock-footer strong { color: var(--accent); }
+
+    /* ── Features ──────────────────────────────────────────────── */
+    #features {
+      padding: 100px 0;
+    }
+
+    .features-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .features-header h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .features-header p {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color 0.25s, transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(38,224,181,0.04) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(38,224,181,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3), 0 0 0 1px rgba(38,224,181,0.1);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── How it works ──────────────────────────────────────────── */
+    #how {
+      padding: 100px 0;
+      background: linear-gradient(180deg, transparent, rgba(52,46,173,0.06) 50%, transparent);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      position: relative;
+      margin-top: 60px;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 32px;
+      left: 16.5%;
+      right: 16.5%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .step {
+      text-align: center;
+      padding: 0 24px;
+      position: relative;
+    }
+
+    .step-num {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 32px rgba(52,46,173,0.45);
+      position: relative;
+      z-index: 1;
+    }
+
+    .step h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── Shortcuts ─────────────────────────────────────────────── */
+    #shortcuts { padding: 100px 0; }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 50px;
+    }
+
+    .shortcut-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      text-align: center;
+      transition: border-color 0.25s, transform 0.2s;
+    }
+
+    .shortcut-card:hover {
+      border-color: rgba(38,224,181,0.4);
+      transform: translateY(-4px);
+    }
+
+    .shortcut-emoji { font-size: 36px; display: block; margin-bottom: 16px; }
+
+    .shortcut-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+
+    .shortcut-card p { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+
+    .kbd {
+      display: inline-block;
+      padding: 4px 10px;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Download ──────────────────────────────────────────────── */
+    #download {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    #download h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    #download > .container > p {
+      font-size: 17px;
+      color: var(--muted);
+      margin-bottom: 56px;
+      line-height: 1.7;
+    }
+
+    .browser-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .browser-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 20px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.25s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .browser-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    }
+
+    .browser-icon { font-size: 40px; }
+
+    .browser-card strong {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .browser-card span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .download-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0D0E1F;
+      background: var(--accent);
+      border-radius: 99px;
+      padding: 5px 14px;
+      margin-top: 4px;
+    }
+
+    .github-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 24px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .github-link:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ── Privacy Banner ────────────────────────────────────────── */
+    .privacy-banner {
+      margin: 60px auto 0;
+      max-width: 680px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .privacy-icon { font-size: 32px; flex-shrink: 0; }
+
+    .privacy-banner h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .privacy-banner p  { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+    /* ── Footer ────────────────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 40px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .footer-brand .nav-logo-icon { width: 28px; height: 28px; border-radius: 7px; }
+
+    .footer-info {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footer-info strong { color: var(--accent); }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ── Animations ────────────────────────────────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero-badges, .hero-download-btns { justify-content: center; }
+      .hero-left p { max-width: 100%; }
+      .features-grid, .shortcuts-grid, .browser-grid { grid-template-columns: 1fr 1fr; }
+      .steps { grid-template-columns: 1fr; gap: 40px; }
+      .steps::before { display: none; }
+      .mockup-wrap { order: -1; }
+      .ext-mockup { width: 280px; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 560px) {
+      .features-grid, .shortcuts-grid, .browser-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ── Navigation ───────────────────────────────────────────── -->
+  <nav>
+    <a href="#hero" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="white">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      </div>
+      Promptly
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How it Works</a></li>
+      <li><a href="#shortcuts">Shortcuts</a></li>
+      <li><a href="#download" class="nav-cta">Download Free</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="container hero-inner">
+      <div class="hero-left">
+        <span class="section-tag">⚡ Free Browser Extension</span>
+        <h1>Turn Weak Prompts into <span class="gradient-text">AI Masterpieces</span></h1>
+        <p>Promptly instantly rewrites your one-line prompts into structured, high-quality AI prompts — right inside ChatGPT, Claude, Gemini & more. Zero config. No login required.</p>
+        <div class="hero-badges">
+          <span class="badge">🔒 No API key needed</span>
+          <span class="badge">⚡ Zero configuration</span>
+          <span class="badge">🌐 All AI platforms</span>
+          <span class="badge">🆓 100% Free</span>
+        </div>
+        <div class="hero-download-btns">
+          <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-chrome-v1.2.0.zip"
+             class="btn-primary" id="hero-chrome-dl">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 110-16 8 8 0 010 16zm0-14a6 6 0 100 12A6 6 0 0012 6zm0 10a4 4 0 110-8 4 4 0 010 8z"/>
+            </svg>
+            Download for Chrome
+          </a>
+          <a href="#download" class="btn-outline">
+            All Browsers ↓
+          </a>
+        </div>
+      </div>
+
+      <!-- Mockup -->
+      <div class="mockup-wrap">
+        <div class="mockup-glow"></div>
+        <div class="ext-mockup">
+          <div class="mock-header">
+            <div class="mock-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="white">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+            </div>
+            <span class="mock-title">Promptly</span>
+            <span class="mock-badge">v1.2</span>
+            <div class="mock-toggle-pill"></div>
+          </div>
+          <div class="mock-tabs">
+            <div class="mock-tab active">⚙️ Settings</div>
+            <div class="mock-tab">📁 Projects</div>
+            <div class="mock-tab">📋 History</div>
+          </div>
+          <div class="mock-body">
+            <div class="mock-label">Optimization Tone</div>
+            <div class="mock-select">⚡ Default — balanced &amp; structured</div>
+            <div class="mock-label">Usage Metrics</div>
+            <div class="mock-metrics">
+              <div class="mock-metric-row">
+                <span>Current Month</span>
+                <span>Calls: <strong>1,350</strong> / 2,000</span>
+              </div>
+              <div class="mock-bar-bg"><div class="mock-bar-fill"></div></div>
+              <div class="mock-metric-row">
+                <span>Avg Response Time</span>
+                <strong>340ms</strong>
+              </div>
+            </div>
+            <div class="mock-label">Quick Shortcuts</div>
+            <div class="mock-shortcut-row">
+              <div class="mock-sc">
+                <span class="mock-sc-icon">✏️✨</span>
+                <strong>Creative</strong>
+                <span>Alt+Shift+C</span>
+              </div>
+              <div class="mock-sc">
+                <span class="mock-sc-icon">💻🔧</span>
+                <strong>Code Forge</strong>
+                <span>Alt+Shift+D</span>
+              </div>
+              <div class="mock-sc">
+                <span class="mock-sc-icon">📄📏</span>
+                <strong>Structure</strong>
+                <span>Alt+Shift+S</span>
+              </div>
+            </div>
+          </div>
+          <div class="mock-footer">
+            <span>Built by <strong>Madhan Kumar B</strong></span>
+            <div style="display:flex;gap:8px;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="11" height="11" fill="#8C8FB3">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="11" height="11" fill="#8C8FB3">
+                <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.35-1.85 3.58 0 4.24 2.36 4.24 5.43v6.31zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ──────────────────────────────────────────────── -->
+  <section id="features">
+    <div class="container">
+      <div class="features-header fade-up">
+        <span class="section-tag">✦ Features</span>
+        <h2>Everything you need to <span class="gradient-text">prompt better</span></h2>
+        <p>A powerful toolkit built right into your browser — no account, no setup, no limits.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card fade-up">
+          <span class="feature-icon">⚡</span>
+          <h3>One-Click Optimization</h3>
+          <p>Click the floating ⚡ button on any AI chat to instantly rewrite your prompt into a detailed, structured masterpiece.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">🎨</span>
+          <h3>4 Optimization Tones</h3>
+          <p>Default, Technical, Creative, and Concise modes. Pick the right style for every prompt — engineering docs to marketing copy.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">💾</span>
+          <h3>Chat Export</h3>
+          <p>Hit your AI limit? Save the full conversation as a file and continue seamlessly in a new chat. Never lose context again.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">↩️</span>
+          <h3>One-Click Undo</h3>
+          <p>Don't like the result? Instantly restore your original text with the undo button that appears right after optimization.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">📊</span>
+          <h3>Usage Metrics</h3>
+          <p>Track your monthly API calls and average response time directly in the popup — so you always know how Promptly is performing.</p>
+        </div>
+        <div class="feature-card fade-up">
+          <span class="feature-icon">🔒</span>
+          <h3>Zero Data Collection</h3>
+          <p>Your prompts stay on your device. The secure cloud proxy never logs any user data. Privacy by design, not as an afterthought.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How It Works ───────────────────────────────────────────── -->
+  <section id="how">
+    <div class="container">
+      <div class="features-header fade-up">
+        <span class="section-tag">🔄 How It Works</span>
+        <h2>From idea to <span class="gradient-text">perfect prompt</span> in 3 steps</h2>
+        <p>No setup. No configuration. Just install and start prompting better immediately.</p>
+      </div>
+      <div class="steps">
+        <div class="step fade-up">
+          <div class="step-num">1</div>
+          <h3>Install the Extension</h3>
+          <p>Download and add Promptly to your browser in under 30 seconds. Works on Chrome, Firefox, Edge & Opera.</p>
+        </div>
+        <div class="step fade-up">
+          <div class="step-num">2</div>
+          <h3>Open Any AI Chat</h3>
+          <p>Navigate to ChatGPT, Claude, Gemini, Grok, or any AI platform. The ⚡ button appears automatically in the input field.</p>
+        </div>
+        <div class="step fade-up">
+          <div class="step-num">3</div>
+          <h3>Click & Optimize</h3>
+          <p>Type your basic idea, click ⚡ (or press <strong>Alt+Shift+P</strong>), and watch Promptly transform it into a powerful, structured prompt.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quick Shortcuts ───────────────────────────────────────── -->
+  <section id="shortcuts">
+    <div class="container">
+      <div class="features-header fade-up">
+        <span class="section-tag">⌨️ Quick Shortcuts</span>
+        <h2>3 shortcut modes for <span class="gradient-text">every use case</span></h2>
+        <p>Trigger specific optimization styles instantly from the Settings panel.</p>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-card fade-up">
+          <span class="shortcut-emoji">✏️✨</span>
+          <h3>Creative Spark</h3>
+          <p>Shortens and punchifies your prompt. Perfect for marketing, storytelling, and creative writing tasks.</p>
+          <span class="kbd">Alt + Shift + C</span>
+        </div>
+        <div class="shortcut-card fade-up">
+          <span class="shortcut-emoji">💻🔧</span>
+          <h3>Code Forge</h3>
+          <p>Shapes clean, precise coding prompts. Optimized for debugging, code review, and technical explanations.</p>
+          <span class="kbd">Alt + Shift + D</span>
+        </div>
+        <div class="shortcut-card fade-up">
+          <span class="shortcut-emoji">📄📏</span>
+          <h3>Structural Guide</h3>
+          <p>Adds detailed structure and hierarchy to your prompt. Great for reports, docs, and complex multi-step tasks.</p>
+          <span class="kbd">Alt + Shift + S</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Download ──────────────────────────────────────────────── -->
+  <section id="download">
+    <div class="container">
+      <span class="section-tag fade-up">⬇️ Download</span>
+      <h2 class="fade-up">Get Promptly <span class="gradient-text">for free</span></h2>
+      <p class="fade-up">Available for all major browsers. 100% free — no account, no credit card, no catch.</p>
+
+      <div class="browser-grid">
+        <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-chrome-v1.2.0.zip"
+           class="browser-card fade-up" id="dl-chrome">
+          <span class="browser-icon">🟢</span>
+          <strong>Chrome</strong>
+          <span>Developer Mode</span>
+          <span class="download-tag">⬇ Download ZIP</span>
+        </a>
+        <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-firefox-v1.2.0.zip"
+           class="browser-card fade-up" id="dl-firefox">
+          <span class="browser-icon">🦊</span>
+          <strong>Firefox</strong>
+          <span>Manifest V2</span>
+          <span class="download-tag">⬇ Download ZIP</span>
+        </a>
+        <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-chrome-v1.2.0.zip"
+           class="browser-card fade-up" id="dl-edge">
+          <span class="browser-icon">🌀</span>
+          <strong>Microsoft Edge</strong>
+          <span>Developer Mode</span>
+          <span class="download-tag">⬇ Download ZIP</span>
+        </a>
+        <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-opera-v1.2.0.zip"
+           class="browser-card fade-up" id="dl-opera">
+          <span class="browser-icon">🔴</span>
+          <strong>Opera</strong>
+          <span>Developer Mode</span>
+          <span class="download-tag">⬇ Download ZIP</span>
+        </a>
+      </div>
+
+      <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/tag/v1.2.0"
+         class="github-link fade-up" target="_blank" rel="noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        View on GitHub — v1.2.0 Release
+      </a>
+
+      <div class="privacy-banner fade-up">
+        <span class="privacy-icon">🔒</span>
+        <div>
+          <h3>Privacy First</h3>
+          <p>Promptly uses a secure server-side proxy to call the AI API. Your API key is never exposed. No prompts are logged or stored. Your data stays yours — always.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ───────────────────────────────────────────────── -->
+  <footer>
+    <a href="#hero" class="footer-brand">
+      <div class="nav-logo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="white">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+      </div>
+      Promptly
+    </a>
+    <div class="footer-info">
+      Built by <strong>Madhan Kumar B</strong> &nbsp;·&nbsp; v1.2.0 &nbsp;·&nbsp; Open Source &nbsp;·&nbsp; Free Forever
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/Madhan-oss/Promptly-Extension" target="_blank" rel="noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/madhan-kumar-a31146274/" target="_blank" rel="noopener noreferrer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+          <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.35-1.85 3.58 0 4.24 2.36 4.24 5.43v6.31zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/>
+        </svg>
+        LinkedIn
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll fade-in animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
