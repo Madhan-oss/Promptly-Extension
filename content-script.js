@@ -41,26 +41,18 @@
   let lastOriginalText = null;  // for undo feature
   let promptlyEnabled  = true;  // master on/off
 
-  // ── Hide / show all Promptly buttons ─────────────────────────
-  function setButtonsVisible(visible) {
-    [BUTTON_ID, UNDO_BTN_ID, SAVE_BTN_ID].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = visible ? '' : 'none';
+  // ── Remove all Promptly buttons from DOM ──────────────────────
+  function removeAllButtons() {
+    [BUTTON_ID, UNDO_BTN_ID, SAVE_BTN_ID, TOOLTIP_ID].forEach(id => {
+      document.getElementById(id)?.remove();
     });
+    currentInput = null;
   }
-
-  // Listen for toggle from popup
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.type === 'PROMPTLY_TOGGLE') {
-      promptlyEnabled = msg.enabled;
-      setButtonsVisible(promptlyEnabled);
-    }
-  });
 
   // Check saved state on load
   chrome.storage.local.get('promptlyEnabled', ({ promptlyEnabled: saved }) => {
     promptlyEnabled = saved !== false;
-    if (!promptlyEnabled) setButtonsVisible(false);
+    if (!promptlyEnabled) removeAllButtons();
   });
 
   // ════════════════════════════════════════════════════════════
@@ -662,6 +654,19 @@
     if (message.type === 'PROMPTLY_SHORTCUT') {
       handleOptimizeClick();
     }
+    if (message.type === 'PROMPTLY_TOGGLE') {
+      promptlyEnabled = message.enabled;
+      if (!promptlyEnabled) {
+        removeAllButtons();       // immediately remove from DOM
+        if (observer) observer.disconnect(); // stop re-injecting
+      } else {
+        startObserver();          // restart observer
+        attachButtons();          // re-inject buttons
+      }
+    }
+    if (message.type === 'TRIGGER_OPTIMIZE') {
+      handleOptimizeClick();
+    }
   });
 
   // ════════════════════════════════════════════════════════════
@@ -696,10 +701,11 @@
   // ════════════════════════════════════════════════════════════
 
   function attachButtons() {
+    if (!promptlyEnabled) return;   // ← guard: skip when disabled
     injectStyles();
     const input   = detectChatInput();
     const optBtn  = createOptimizeButton();
-    const saveBtn = createSaveButton(); // null if not on AI platform
+    const saveBtn = createSaveButton();
     createUndoButton();
 
     currentInput = input;
