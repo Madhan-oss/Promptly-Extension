@@ -796,6 +796,115 @@
       .features-grid, .shortcuts-grid, .browser-grid { grid-template-columns: 1fr; }
       footer { flex-direction: column; text-align: center; }
     }
+
+    /* ── Setup Guide ───────────────────────────────────────────── */
+    .setup-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .setup-tab {
+      padding: 10px 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .setup-tab:hover { border-color: var(--accent); color: var(--text); }
+
+    .setup-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0D0E1F;
+    }
+
+    .setup-panel { display: none; }
+    .setup-panel.active { display: block; }
+
+    .setup-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .setup-step {
+      display: flex;
+      gap: 20px;
+      padding: 24px 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      transition: background 0.2s;
+    }
+
+    .setup-step:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+    .setup-step:last-child  { border-bottom: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); }
+    .setup-step:hover { background: var(--surface2); }
+
+    .setup-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(52,46,173,0.4);
+    }
+
+    .setup-content h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .setup-content p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 0;
+    }
+
+    .setup-dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 8px 18px;
+      background: var(--accent);
+      color: #0D0E1F;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+
+    .setup-dl-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 12.5px;
+      background: var(--surface3);
+      color: var(--accent);
+      padding: 2px 7px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -819,6 +928,7 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#how">How it Works</a></li>
       <li><a href="#shortcuts">Shortcuts</a></li>
+      <li><a href="#setup">Setup Guide</a></li>
       <li><a href="#download" class="nav-cta">Download Free</a></li>
     </ul>
   </nav>
@@ -1022,6 +1132,186 @@
   </section>
 
   <!-- ── Download ──────────────────────────────────────────────── -->
+  <!-- ── Setup Guide ─────────────────────────────────────────── -->
+  <section id="setup" style="padding:100px 0;background:linear-gradient(180deg,transparent,rgba(52,46,173,0.06) 50%,transparent);">
+    <div class="container">
+      <div class="features-header fade-up">
+        <span class="section-tag">🛠️ Setup Guide</span>
+        <h2>Install in <span class="gradient-text">30 seconds</span></h2>
+        <p>Choose your browser below and follow the simple steps to get Promptly running.</p>
+      </div>
+
+      <!-- Browser Tabs -->
+      <div class="setup-tabs fade-up">
+        <button class="setup-tab active" data-target="setup-chrome">🟢 Chrome</button>
+        <button class="setup-tab" data-target="setup-firefox">🦊 Firefox</button>
+        <button class="setup-tab" data-target="setup-edge">🌀 Edge</button>
+        <button class="setup-tab" data-target="setup-opera">🔴 Opera</button>
+      </div>
+
+      <!-- Chrome -->
+      <div class="setup-panel active fade-up" id="setup-chrome">
+        <div class="setup-steps">
+          <div class="setup-step">
+            <div class="setup-num">1</div>
+            <div class="setup-content">
+              <h3>Download the ZIP</h3>
+              <p>Click the Chrome download button below to download <strong>promptly-chrome-v1.2.0.zip</strong> to your computer.</p>
+              <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-chrome-v1.2.0.zip" class="setup-dl-btn" download>⬇ Download for Chrome</a>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">2</div>
+            <div class="setup-content">
+              <h3>Unzip the File</h3>
+              <p>Right-click the downloaded ZIP file and select <strong>"Extract All"</strong> (Windows) or double-click (Mac) to unzip it into a folder.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">3</div>
+            <div class="setup-content">
+              <h3>Open Chrome Extensions</h3>
+              <p>In Chrome, go to <code>chrome://extensions</code> in the address bar and press Enter.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">4</div>
+            <div class="setup-content">
+              <h3>Enable Developer Mode</h3>
+              <p>Toggle <strong>"Developer mode"</strong> ON using the switch in the top-right corner of the Extensions page.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">5</div>
+            <div class="setup-content">
+              <h3>Load the Extension</h3>
+              <p>Click <strong>"Load unpacked"</strong>, then select the folder you unzipped in Step 2. Promptly will appear in your extension list! ⚡</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Firefox -->
+      <div class="setup-panel fade-up" id="setup-firefox">
+        <div class="setup-steps">
+          <div class="setup-step">
+            <div class="setup-num">1</div>
+            <div class="setup-content">
+              <h3>Download the Firefox ZIP</h3>
+              <p>Download <strong>promptly-firefox-v1.2.0.zip</strong> — this is the special Firefox MV2 build.</p>
+              <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-firefox-v1.2.0.zip" class="setup-dl-btn" download>⬇ Download for Firefox</a>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">2</div>
+            <div class="setup-content">
+              <h3>Open Firefox Debugging</h3>
+              <p>In Firefox, type <code>about:debugging</code> in the address bar and press Enter.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">3</div>
+            <div class="setup-content">
+              <h3>Click "This Firefox"</h3>
+              <p>In the left sidebar click <strong>"This Firefox"</strong> to open the local add-on loader.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">4</div>
+            <div class="setup-content">
+              <h3>Load Temporary Add-on</h3>
+              <p>Click <strong>"Load Temporary Add-on…"</strong>, then navigate into the unzipped folder and select <strong>manifest.json</strong>. Done! ⚡</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edge -->
+      <div class="setup-panel fade-up" id="setup-edge">
+        <div class="setup-steps">
+          <div class="setup-step">
+            <div class="setup-num">1</div>
+            <div class="setup-content">
+              <h3>Download the ZIP</h3>
+              <p>Edge uses the same Chrome build. Download <strong>promptly-chrome-v1.2.0.zip</strong>.</p>
+              <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-chrome-v1.2.0.zip" class="setup-dl-btn" download>⬇ Download for Edge</a>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">2</div>
+            <div class="setup-content">
+              <h3>Unzip the File</h3>
+              <p>Right-click the ZIP and select <strong>"Extract All"</strong> to unzip it into a folder.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">3</div>
+            <div class="setup-content">
+              <h3>Open Edge Extensions</h3>
+              <p>In Edge, go to <code>edge://extensions</code> in the address bar and press Enter.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">4</div>
+            <div class="setup-content">
+              <h3>Enable Developer Mode</h3>
+              <p>Toggle <strong>"Developer mode"</strong> ON in the left sidebar.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">5</div>
+            <div class="setup-content">
+              <h3>Load the Extension</h3>
+              <p>Click <strong>"Load unpacked"</strong>, select the unzipped folder. Promptly appears instantly! ⚡</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Opera -->
+      <div class="setup-panel fade-up" id="setup-opera">
+        <div class="setup-steps">
+          <div class="setup-step">
+            <div class="setup-num">1</div>
+            <div class="setup-content">
+              <h3>Download the ZIP</h3>
+              <p>Download <strong>promptly-opera-v1.2.0.zip</strong> for Opera.</p>
+              <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-opera-v1.2.0.zip" class="setup-dl-btn" download>⬇ Download for Opera</a>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">2</div>
+            <div class="setup-content">
+              <h3>Unzip the File</h3>
+              <p>Extract the ZIP to a folder on your computer.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">3</div>
+            <div class="setup-content">
+              <h3>Open Opera Extensions</h3>
+              <p>In Opera, go to <code>opera://extensions</code> in the address bar.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">4</div>
+            <div class="setup-content">
+              <h3>Enable Developer Mode</h3>
+              <p>Click <strong>"Developer mode"</strong> in the top-right corner.</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="setup-num">5</div>
+            <div class="setup-content">
+              <h3>Load the Extension</h3>
+              <p>Click <strong>"Load unpacked"</strong> and select the unzipped folder. Done! ⚡</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="download">
     <div class="container">
       <span class="section-tag fade-up">⬇️ Download</span>
@@ -1030,32 +1320,32 @@
 
       <div class="browser-grid">
         <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-chrome-v1.2.0.zip"
-           class="browser-card fade-up" id="dl-chrome">
+           class="browser-card fade-up dl-btn" id="dl-chrome" download>
           <span class="browser-icon">🟢</span>
           <strong>Chrome</strong>
           <span>Developer Mode</span>
-          <span class="download-tag">⬇ Download ZIP</span>
+          <span class="download-tag" id="dl-chrome-tag">⬇ Download ZIP</span>
         </a>
         <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-firefox-v1.2.0.zip"
-           class="browser-card fade-up" id="dl-firefox">
+           class="browser-card fade-up dl-btn" id="dl-firefox" download>
           <span class="browser-icon">🦊</span>
           <strong>Firefox</strong>
           <span>Manifest V2</span>
-          <span class="download-tag">⬇ Download ZIP</span>
+          <span class="download-tag" id="dl-firefox-tag">⬇ Download ZIP</span>
         </a>
         <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-chrome-v1.2.0.zip"
-           class="browser-card fade-up" id="dl-edge">
+           class="browser-card fade-up dl-btn" id="dl-edge" download>
           <span class="browser-icon">🌀</span>
           <strong>Microsoft Edge</strong>
           <span>Developer Mode</span>
-          <span class="download-tag">⬇ Download ZIP</span>
+          <span class="download-tag" id="dl-edge-tag">⬇ Download ZIP</span>
         </a>
         <a href="https://github.com/Madhan-oss/Promptly-Extension/releases/download/v1.2.0/promptly-opera-v1.2.0.zip"
-           class="browser-card fade-up" id="dl-opera">
+           class="browser-card fade-up dl-btn" id="dl-opera" download>
           <span class="browser-icon">🔴</span>
           <strong>Opera</strong>
           <span>Developer Mode</span>
-          <span class="download-tag">⬇ Download ZIP</span>
+          <span class="download-tag" id="dl-opera-tag">⬇ Download ZIP</span>
         </a>
       </div>
 
@@ -1108,16 +1398,41 @@
 
   <script>
     // Scroll fade-in animation
-    const observer = new IntersectionObserver((entries) => {
+    const fadeObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry, i) => {
         if (entry.isIntersecting) {
           setTimeout(() => entry.target.classList.add('visible'), i * 80);
-          observer.unobserve(entry.target);
+          fadeObserver.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-up').forEach(el => fadeObserver.observe(el));
 
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    // Setup guide tabs
+    document.querySelectorAll('.setup-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.setup-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.setup-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        const target = document.getElementById(tab.dataset.target);
+        if (target) target.classList.add('active');
+      });
+    });
+
+    // Download button click feedback
+    document.querySelectorAll('.dl-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const tag = this.querySelector('.download-tag');
+        if (!tag) return;
+        const orig = tag.textContent;
+        tag.textContent = '✅ Downloading...';
+        tag.style.background = '#13a37a';
+        setTimeout(() => {
+          tag.textContent = orig;
+          tag.style.background = '';
+        }, 3000);
+      });
+    });
   </script>
 </body>
 </html>
