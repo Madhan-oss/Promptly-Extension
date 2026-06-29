@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Promptly",
   "version": "1.2.0",
-  "description": "Promptly — turn one-line prompts into structured, high-quality prompts for any AI chat. Export full chats when limits hit. No login required.",
+  "description": "Turn one-line prompts into structured, high-quality AI prompts. Export full chats. Zero config, no login needed.",
   "permissions": ["storage", "activeTab", "scripting", "tabs"],
   "host_permissions": ["<all_urls>", "https://api.groq.com/*", "https://*.vercel.app/*"],
   "background": {
