@@ -39,6 +39,29 @@
   let limitDetected   = false;
   let debounceTimer   = null;
   let lastOriginalText = null;  // for undo feature
+  let promptlyEnabled  = true;  // master on/off
+
+  // ── Hide / show all Promptly buttons ─────────────────────────
+  function setButtonsVisible(visible) {
+    [BUTTON_ID, UNDO_BTN_ID, SAVE_BTN_ID].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = visible ? '' : 'none';
+    });
+  }
+
+  // Listen for toggle from popup
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.type === 'PROMPTLY_TOGGLE') {
+      promptlyEnabled = msg.enabled;
+      setButtonsVisible(promptlyEnabled);
+    }
+  });
+
+  // Check saved state on load
+  chrome.storage.local.get('promptlyEnabled', ({ promptlyEnabled: saved }) => {
+    promptlyEnabled = saved !== false;
+    if (!promptlyEnabled) setButtonsVisible(false);
+  });
 
   // ════════════════════════════════════════════════════════════
   //  UTILITIES

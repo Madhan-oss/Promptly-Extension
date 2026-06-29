@@ -7,7 +7,35 @@ const DEFAULT_GROQ_API_KEY = "YOUR_DEFAULT_GROQ_API_KEY_HERE";
 const PROXY_API_URL   = "https://promptly-umber.vercel.app/api/optimize";
 
 // ════════════════════════════════════════════════════════════
-//  TAB SWITCHING
+//  MASTER ON / OFF TOGGLE
+// ════════════════════════════════════════════════════════════
+const masterToggle = document.getElementById('master-toggle-input');
+
+function applyEnabledState(enabled) {
+  masterToggle.checked = enabled;
+  document.body.classList.toggle('promptly-disabled', !enabled);
+}
+
+// Load saved state
+chrome.storage.local.get('promptlyEnabled', ({ promptlyEnabled }) => {
+  const enabled = promptlyEnabled !== false; // default ON
+  applyEnabledState(enabled);
+});
+
+masterToggle?.addEventListener('change', () => {
+  const enabled = masterToggle.checked;
+  chrome.storage.local.set({ promptlyEnabled: enabled });
+  applyEnabledState(enabled);
+
+  // Notify the active tab's content script immediately
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs[0]?.id) {
+      chrome.tabs.sendMessage(tabs[0].id, { type: 'PROMPTLY_TOGGLE', enabled });
+    }
+  });
+});
+
+
 // ════════════════════════════════════════════════════════════
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {

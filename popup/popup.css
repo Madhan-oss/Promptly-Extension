@@ -86,8 +86,13 @@ html, body {
   color: var(--text);
   letter-spacing: -0.3px;
 }
-.header-badge {
+.header-right {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-badge {
   font-size: 10px;
   font-weight: 600;
   color: var(--accent);
@@ -97,6 +102,56 @@ html, body {
   padding: 2px 8px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+
+/* ── Master Toggle Switch ──────────────────────────────────── */
+.master-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.master-toggle input { display: none; }
+.toggle-track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.25s, border-color 0.25s;
+}
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.25s, background 0.25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+.master-toggle input:checked + .toggle-track {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.master-toggle input:checked + .toggle-track .toggle-thumb {
+  transform: translateX(16px);
+  background: #fff;
+}
+/* Dim the whole popup body when disabled */
+body.promptly-disabled .tabs,
+body.promptly-disabled .tab-content {
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+body.promptly-disabled .header-wordmark::after {
+  content: " (Off)";
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
 }
 
 /* ── Tabs ─────────────────────────────────────────────────── */
